@@ -22,7 +22,7 @@ set_api = f'{plugin_config.base_url}{plugin_config.boss_info_path}{plugin_config
 async def serach_boss(key1, key2):
     params = {'name': key1, 'level': key2}
     try:
-        async with httpx.AsyncClient() as client:
+        async with httpx.AsyncClient(timeout=10) as client:
             res = await client.get(serach_api, params=params)
             if res.status_code != 200:
                 return None
@@ -98,12 +98,12 @@ async def boss_team_parser(bot: Bot, event: Event, state: T_State):
     state["turn"] = args[1]
 
 
-# @boss_team.handle()
-# async def boss_set_team_handle(bot: Bot, event: MessageEvent, state: T_State):
-#     args = str(event.get_message()).strip().split(" ")
-#     if len(args) < 2:
-#         await boss_team.reject("请输入boss名字和难度")
-#     (state['name'], state['level']) = (args[0], args[1])
+@boss_team.handle()
+async def boss_set_team_handle(bot: Bot, event: MessageEvent, state: T_State):
+    args = str(event.get_message()).strip().split(" ")
+    if len(args) < 2:
+        await boss_team.reject("请输入boss名字和难度")
+    (state['name'], state['level']) = (args[0], args[1])
 
 
 @boss_team.got('team_turn', prompt="请输入队伍和回数")
@@ -114,7 +114,6 @@ async def boss_set_team(bot: Bot, event: Event, state:T_State):
     await boss_team.finish("添加失败")
 
 
-@boss_team.handle()
 @boss_notice.handle()
 async def boss_set_notice_handle(bot: Bot, event: MessageEvent, state: T_State):
     args = str(event.get_message()).strip().split(" ")
